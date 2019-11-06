@@ -1,101 +1,68 @@
-package com.tmaitz.ideafinder;
+package com.tmaitz.ideafinder
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.ValueSource;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Stream;
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 
 
-class FinderTest {
+internal class FinderTest {
 
-    private Finder finder;
-    private static List<String> classes = Arrays.asList("a.b.FooBarBaz", "c.d.FooBar");
+    private var finder: Finder? = null
+    private val classes = listOf("a.b.FooBarBaz", "c.d.FooBar")
 
     @BeforeEach
-    void setUp() {
-        finder = new Finder();
+    fun setUp() {
+        finder = Finder()
     }
 
     @ParameterizedTest
-    @MethodSource("findAll_source")
-    void findAll(List<String> classes, String pattern, List<String> expected) {
-        final List<String> result = finder.find(classes, pattern);
-        Assertions.assertIterableEquals(expected, result);
-    }
-
-    private static Stream<Arguments> findAll_source() {
-        var classes = Arrays.asList("a.b.FooBarBaz", "c.d.FooBar");
-        var expected = Arrays.asList("c.d.FooBar", "a.b.FooBarBaz");
-        return Stream.of(
-                Arguments.of(classes, "FB", expected),
-                Arguments.of(classes, "FoBa", expected),
-                Arguments.of(classes, "FBar", expected),
-                Arguments.of(classes, "fb", expected)
-        );
-    }
-
-
-    @ParameterizedTest
-    @ValueSource(strings = {
-            "BF",
-            "bf",
-    })
-    void wrong_order(String pattern) {
-        final List<String> result = finder.find(classes, pattern);
-        Assertions.assertIterableEquals(Collections.emptyList(), result);
+    @ValueSource(strings = ["FB", "FoBa", "FBar", "fb"])
+    fun `find both classes with simple search`(pattern: String) {
+        val result = finder!!.find(classes, pattern)
+        Assertions.assertIterableEquals(listOf("c.d.FooBar", "a.b.FooBarBaz"), result)
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            "fbb",
-    })
-    void lowercase_sequence(String pattern) {
-        final List<String> result = finder.find(classes, pattern);
-        Assertions.assertIterableEquals(Collections.singletonList("a.b.FooBarBaz"), result);
+    @ValueSource(strings = ["BF", "bf"])
+    fun `find nothing in case of wrong order`(pattern: String) {
+        val result = finder!!.find(classes, pattern)
+        Assertions.assertIterableEquals(emptyList<Any>(), result)
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            "fBb",
-    })
-    void mixed_sequence(String pattern) {
-        final List<String> result = finder.find(classes, pattern);
-        Assertions.assertIterableEquals(Collections.emptyList(), result);
+    @ValueSource(strings = ["fbb"])
+    fun `find one className by full camel case pattern`(pattern: String) {
+        val result = finder!!.find(classes, pattern)
+        Assertions.assertIterableEquals(listOf("a.b.FooBarBaz"), result)
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            "FBar ",
-    })
-    void with_whitespace(String pattern) {
-        final List<String> result = finder.find(classes, pattern);
-        Assertions.assertIterableEquals(Collections.singletonList("c.d.FooBar"), result);
+    @ValueSource(strings = ["fBb"])
+    fun `find nothing in case of mixed case (upper and lower) in pattern`(pattern: String) {
+        val result = finder!!.find(classes, pattern)
+        Assertions.assertIterableEquals(emptyList<Any>(), result)
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            "B*rBaz",
-    })
-    void masked_pattern(String pattern) {
-        final List<String> result = finder.find(classes, pattern);
-        Assertions.assertIterableEquals(Collections.singletonList("a.b.FooBarBaz"), result);
+    @ValueSource(strings = ["FBar "])
+    fun `find one className in case of whitespace in pattern end`(pattern: String) {
+        val result = finder!!.find(classes, pattern)
+        Assertions.assertIterableEquals(listOf("c.d.FooBar"), result)
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            "BrBaz",
-            "BarBz*",
-    })
-    void masked_pattern1(String pattern) {
-        final List<String> result = finder.find(classes, pattern);
-        Assertions.assertIterableEquals(Collections.emptyList(), result);
+    @ValueSource(strings = ["B*rBaz"])
+    fun `find one className by pattern with mask '*'`(pattern: String) {
+        val result = finder!!.find(classes, pattern)
+        Assertions.assertIterableEquals(listOf("a.b.FooBarBaz"), result)
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["BrBaz", "BarBz*"])
+    fun `find nothing by pattern with mask '*"`(pattern: String) {
+        val result = finder!!.find(classes, pattern)
+        Assertions.assertIterableEquals(emptyList<Any>(), result)
     }
 
 }

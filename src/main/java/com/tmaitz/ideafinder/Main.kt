@@ -1,11 +1,5 @@
-package com.tmaitz.ideafinder;
+package com.tmaitz.ideafinder
 
-import java.util.Arrays;
-
-public class Main {
-
-    public static void main(String[] args) {
-        new Finder().find(Arrays.asList("a.b.FooBarBaz", "c.d.FooBar"), "");
-    }
-
+fun main(args: Array<String>) {
+    Finder().find(listOf("a.b.FooBarBaz", "c.d.FooBar"), "")
 }
