@@ -1,19 +1,19 @@
 package com.tmaitz.ideafinder
 
-class Finder {
+class Finder(originalPattern: String) {
 
-    fun find(classes: List<String>, originalPattern: String): List<String> {
-        var pattern = originalPattern
-        val resultMap = HashMap<String, String?>()
-        if (pattern == pattern.toLowerCase()) {
-            pattern = pattern.toUpperCase()
+    private val pattern: String
+
+    init {
+        if (originalPattern == originalPattern.toLowerCase()) {
+            this.pattern = originalPattern.toUpperCase()
+        } else {
+            this.pattern = originalPattern
         }
+    }
 
-        for (classWithPackage in classes) {
-            val className = extractClassName(classWithPackage)
-            resultMap[classWithPackage] = className
-        }
-
+    fun match(classNameWithPackage: String): Boolean {
+        var className: String = extractClassName(classNameWithPackage);
         var masked = false
         for (ch in pattern) {
             if (ch == '*') {
@@ -22,14 +22,11 @@ class Finder {
                 masked = true
                 continue
             }
-            for (classNameWithPackage in resultMap.keys) {
-                val className = resultMap[classNameWithPackage]
-                resultMap[classNameWithPackage] = processClassName(ch, className, masked)
-            }
+            className = processClassName(ch, className, masked) ?: return false
             masked = false
         }
 
-        return extractSortedPackages(resultMap)
+        return true
     }
 
     private fun extractSortedPackages(resultMap: Map<String, String?>): List<String> {
