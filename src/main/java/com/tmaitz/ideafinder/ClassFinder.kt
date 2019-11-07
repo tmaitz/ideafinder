@@ -12,43 +12,45 @@ class ClassFinder(originalPattern: String) {
         }
     }
 
-    fun match(classNameWithPackage: String): Boolean {
-        return match(ClassName(classNameWithPackage))
+    fun isMatched(classNameWithPackage: String): Boolean {
+        return isMatched(ClassName(classNameWithPackage))
     }
 
-    fun match(className: ClassName): Boolean {
-        var simpleName: String = className.simpleName
-        var masked = true
-        for (ch in pattern) {
-            if (ch == '*') {
-                // if current char is '*' mean that next chars in className may be different than the next character pattern
-                // set masked flag true and iterate to next char in pattern
-                masked = true
-                continue
-            }
-            simpleName = processClassName(ch, simpleName, masked) ?: return false
-            masked = false
-        }
-
-        return true
+    fun isMatched(className: ClassName): Boolean {
+        return isMatchedByPattern(0, className.simpleName, true)
     }
 
-    private fun processClassName(ch: Char, className: String?, masked: Boolean): String? {
-        // not matched -> skip
-        if (className == null) return null
-        if (ch == ' ') {
-            // in case of whitespace -> skip if word not finished
-            // otherwise -> save this word
-            return if (className.isEmpty()) className else null
+    /**
+     * Main idea - starting from the 0 index of the pattern,
+     * recursively bypass the incoming analyzedString (char by char) and shorten it
+     * if the matching conditions are met according to the current analyzed pattern's position
+     */
+    private fun isMatchedByPattern(patternCursorPosition: Int, analyzedString: String, wildcardPrevious: Boolean): Boolean {
+        // pattern finished => pattern matched
+        if (patternCursorPosition >= pattern.length) return true
+        val patternSymbol = pattern[patternCursorPosition]
+        if (patternSymbol == ' ') {
+            return analyzedString.isEmpty()
         }
-        for (j in className.indices) {
-            if (className[j] == ch) {
-                return className.substring(j + 1)
+        val isWildcardSymbol = patternSymbol == '*'
+        val isCamelCaseStart = patternSymbol.isUpperCase()
+        for (i in analyzedString.indices) {
+            if (patternSymbol == analyzedString[i] || isWildcardSymbol) {
+                if (isWildcardSymbol) {
+                    if (isMatchedByPattern(patternCursorPosition + 1, analyzedString, isWildcardSymbol)) {
+                        return true
+                    }
+                }
+                if (isMatchedByPattern(patternCursorPosition + 1, analyzedString.substring(i + 1), isWildcardSymbol)) {
+                    return true
+                }
             }
-            if (Character.isUpperCase(ch) || masked) continue
-            return null
+            if (!wildcardPrevious && !isCamelCaseStart) {
+                break
+            }
         }
-        return null
+        // incoming string finished => pattern not matched
+        return false
     }
 
 }

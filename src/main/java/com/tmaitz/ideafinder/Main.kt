@@ -31,7 +31,7 @@ fun main(args: Array<String>) {
             .map { it.trim() }
             .filter { it.isNotEmpty() }
             .map { ClassName(it) }
-            .filter { finder.match(it) }
+            .filter { finder.isMatched(it) }
             .sorted()
             .forEach { println(it.fullName) }
 }
