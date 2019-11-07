@@ -24,11 +24,14 @@ fun main(args: Array<String>) {
         println("Can't read file '$filePath'")
         exitProcess(1)
     }
-    val finder = Finder(pattern)
+    val finder = ClassFinder(pattern)
     // use default charset (UTF-8)
     file.readLines()
+            .asSequence()
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .map { ClassName(it) }
             .filter { finder.match(it) }
-            // ToDo: implement correct sorting
             .sorted()
-            .forEach { println(it) }
+            .forEach { println(it.fullName) }
 }

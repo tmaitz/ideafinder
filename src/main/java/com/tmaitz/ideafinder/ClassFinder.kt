@@ -1,6 +1,6 @@
 package com.tmaitz.ideafinder
 
-class Finder(originalPattern: String) {
+class ClassFinder(originalPattern: String) {
 
     private val pattern: String
 
@@ -13,36 +13,24 @@ class Finder(originalPattern: String) {
     }
 
     fun match(classNameWithPackage: String): Boolean {
-        var className: String = extractClassName(classNameWithPackage);
-        var masked = false
+        return match(ClassName(classNameWithPackage))
+    }
+
+    fun match(className: ClassName): Boolean {
+        var simpleName: String = className.simpleName
+        var masked = true
         for (ch in pattern) {
             if (ch == '*') {
-                // if current char is '*' mean that next chars in classname may be different than the next character pattern
+                // if current char is '*' mean that next chars in className may be different than the next character pattern
                 // set masked flag true and iterate to next char in pattern
                 masked = true
                 continue
             }
-            className = processClassName(ch, className, masked) ?: return false
+            simpleName = processClassName(ch, simpleName, masked) ?: return false
             masked = false
         }
 
         return true
-    }
-
-    private fun extractSortedPackages(resultMap: Map<String, String?>): List<String> {
-        return resultMap.entries
-                .filter { entry -> entry.value != null }
-                .sortedWith(Comparator { entry1, entry2 ->
-                    val cn1 = extractClassName(entry1.key)
-                    val cn2 = extractClassName(entry2.key)
-                    cn1.compareTo(cn2, ignoreCase = true)
-                })
-                .map { it.key }
-                .toList()
-    }
-
-    private fun extractClassName(classWithPackage: String): String {
-        return classWithPackage.substring(classWithPackage.lastIndexOf('.') + 1)
     }
 
     private fun processClassName(ch: Char, className: String?, masked: Boolean): String? {
