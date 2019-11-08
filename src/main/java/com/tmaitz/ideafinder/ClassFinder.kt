@@ -36,7 +36,8 @@ class ClassFinder(originalPattern: String) {
         val isCamelCaseStart = patternSymbol.isUpperCase()
         for (i in analyzedString.indices) {
             if (patternSymbol == analyzedString[i] || isWildcardSymbol) {
-                if (isWildcardSymbol) {
+                // if current pattern symbol is wildcard => we should check same string with next pattern character
+                if (isWildcardSymbol && i == 0) {
                     if (isMatchedByPattern(patternCursorPosition + 1, analyzedString, isWildcardSymbol)) {
                         return true
                     }
@@ -45,6 +46,7 @@ class ClassFinder(originalPattern: String) {
                     return true
                 }
             }
+            // if previous pattern symbol is wildcard or current pattern symbol is upper case => check next string characters
             if (!wildcardPrevious && !isCamelCaseStart) {
                 break
             }
