@@ -28,8 +28,7 @@ fun main(args: Array<String>) {
     // use default charset (UTF-8)
     file.readLines()
             .asSequence()
-            .map { it.trim() }
-            .filter { it.isNotEmpty() }
+            .filter { it.isNotBlank() }
             .map { ClassName(it) }
             .filter { finder.isMatched(it) }
             .sorted()
