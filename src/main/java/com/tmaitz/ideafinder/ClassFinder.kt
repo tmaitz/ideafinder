@@ -33,15 +33,15 @@ class ClassFinder(originalPattern: String) {
             return analyzedString.isEmpty()
         }
         val isWildcardSymbol = patternSymbol == '*'
+        if (isWildcardSymbol) {
+            // if current pattern symbol is wildcard => we should check same string with next pattern character
+            if (isMatchedByPattern(patternCursorPosition + 1, analyzedString, isWildcardSymbol)) {
+                return true
+            }
+        }
         val isCamelCaseStart = patternSymbol.isUpperCase()
         for (i in analyzedString.indices) {
             if (patternSymbol == analyzedString[i] || isWildcardSymbol) {
-                // if current pattern symbol is wildcard => we should check same string with next pattern character
-                if (isWildcardSymbol && i == 0) {
-                    if (isMatchedByPattern(patternCursorPosition + 1, analyzedString, isWildcardSymbol)) {
-                        return true
-                    }
-                }
                 if (isMatchedByPattern(patternCursorPosition + 1, analyzedString.substring(i + 1), isWildcardSymbol)) {
                     return true
                 }

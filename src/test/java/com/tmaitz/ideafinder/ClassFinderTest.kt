@@ -9,11 +9,11 @@ import java.util.function.Supplier
 internal class ClassFinderTest {
 
     private fun assertMatchTrue(finder: ClassFinder, className: String, pattern: String) {
-        Assertions.assertTrue(finder.isMatched(className)) { "Pattern '$pattern' doesn't match '$className" }
+        Assertions.assertTrue(finder.isMatched(className)) { "Pattern '$pattern' doesn't match '$className'" }
     }
 
     private fun assertMatchFalse(finder: ClassFinder, className: String, pattern: String) {
-        Assertions.assertFalse(finder.isMatched(className)) { "Pattern '$pattern' shouldn't match '$className" }
+        Assertions.assertFalse(finder.isMatched(className)) { "Pattern '$pattern' shouldn't match '$className'" }
     }
 
     @ParameterizedTest
